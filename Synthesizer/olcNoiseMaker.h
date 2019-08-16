@@ -88,7 +88,7 @@ public:
 
 		// Validate device
 		vector<wstring> devices = Enumerate();
-		auto d = std::find(devices.begin(), devices.end(), sOutputDevice);
+		auto d = find(devices.begin(), devices.end(), sOutputDevice);
 		if (d != devices.end())
 		{
 			// Device is available
