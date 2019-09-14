@@ -1,6 +1,7 @@
 #pragma once
 
 // Amplitude (Attack, Decay, Sustain, Release) Envelope
+// amplitude modulation of output to give texture, i.e. the timbre
 struct sEnvelopeADSR
 {
 	double dAttackTime;
