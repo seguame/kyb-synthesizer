@@ -158,6 +158,7 @@
     <ClCompile Include="Synthesizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="envelope.h" />
     <ClInclude Include="olcNoiseMaker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
