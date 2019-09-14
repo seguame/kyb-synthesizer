@@ -148,7 +148,7 @@ public:
 	}
 
 	// Override to process current sample
-	virtual double UserProcess(double dTime)
+	virtual double UserProcess(int nChannel, double dTime)
 	{
 		return 0.0;
 	}
@@ -172,7 +172,7 @@ public:
 		return sDevices;
 	}
 
-	void SetUserFunction(double(*func)(double))
+	void SetUserFunction(double(*func)(int, double))
 	{
 		m_userFunction = func;
 	}
@@ -187,7 +187,7 @@ public:
 
 
 private:
-	double(*m_userFunction)(double);
+	double(*m_userFunction)(int, double);
 
 	unsigned int m_nSampleRate;
 	unsigned int m_nChannels;
@@ -259,13 +259,17 @@ private:
 			for (unsigned int n = 0; n < m_nBlockSamples; n++)
 			{
 				// User Process
-				if (m_userFunction == nullptr)
-					nNewSample = (T)(clip(UserProcess(m_dGlobalTime), 1.0) * dMaxSample);
-				else
-					nNewSample = (T)(clip(m_userFunction(m_dGlobalTime), 1.0) * dMaxSample);
+				for (unsigned int c = 0; c < m_nChannels; c++)
+				{
+					if (m_userFunction == nullptr)
+						nNewSample = (T)(clip(UserProcess(c, m_dGlobalTime), 1.0) * dMaxSample);
+					else
+						nNewSample = (T)(clip(m_userFunction(c, m_dGlobalTime), 1.0) * dMaxSample);
 
-				m_pBlockMemory[nCurrentBlock + n] = nNewSample;
-				nPreviousSample = nNewSample;
+					m_pBlockMemory[nCurrentBlock + n + c] = nNewSample;
+					nPreviousSample = nNewSample;
+				}
+
 				m_dGlobalTime = m_dGlobalTime + dTimeStep;
 			}
 
