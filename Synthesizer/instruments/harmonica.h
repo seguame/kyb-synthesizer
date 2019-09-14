@@ -2,23 +2,32 @@
 
 #include "instrument.h"
 
-struct harmonica : instrument
-{
-	harmonica() {
-		env.dAttackTime = 0.05;
-		env.dDecayTime = 1.0;
-		env.dSustainAmplitude = 0.95;
-		env.dReleaseTime = 0.1;
-	}
+namespace synth {
 
-	double sound(double dTime, double dFrequency) {
-		double dOutput = env.GetAmplitude(dTime) * (
-			+ 1.0 * oscillator(dFrequency, dTime, OSC_SQUARE, 5.0, 0.001)
-			+ 0.5 * oscillator(dFrequency * 1.5, dTime, OSC_SQUARE)
-			+ 0.5 * oscillator(dFrequency * 2.5, dTime, OSC_SQUARE)
-			+ 0.05 * oscillator(0, dTime, OSC_NOISE)
-			);
+	struct Harmonica : public synth::Instrument
+	{
+		Harmonica() {
+			env.dAttackTime = 0.05;
+			env.dDecayTime = 1.0;
+			env.dSustainAmplitude = 0.95;
+			env.dReleaseTime = 0.1;
 
-		return dOutput;
-	}
-};
+			dVolume = 1.0;
+		}
+
+		virtual double sound(const double dTime, synth::Note n, bool &bNoteFinished)
+		{
+			double dAmplitude = synth::envelope(dTime, env, n.on, n.off);
+			if (dAmplitude <= 0.0) {
+				bNoteFinished = true;
+			}
+
+			double dSound =
+				+ 1.00 * synth::oscillator(n.on - dTime, synth::scale(n.id), synth::OSC_SQUARE, 5.0, 0.001)
+				+ 0.50 * synth::oscillator(n.on - dTime, synth::scale(n.id + 12), synth::OSC_SQUARE)
+				+ 0.05 * synth::oscillator(n.on - dTime, synth::scale(n.id + 24), synth::OSC_NOISE);
+
+			return dAmplitude * dSound * dVolume;
+		}
+	};
+}
