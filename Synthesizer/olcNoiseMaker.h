@@ -243,7 +243,9 @@ private:
 			if (m_nBlockFree == 0)
 			{
 				unique_lock<mutex> lm(m_muxBlockNotZero);
-				m_cvBlockNotZero.wait(lm);
+				// sometimes, Windows signals incorrectly
+				while (m_nBlockFree == 0) 
+					m_cvBlockNotZero.wait(lm);
 			}
 
 			// Block is here, so use it
@@ -256,7 +258,7 @@ private:
 			T nNewSample = 0;
 			int nCurrentBlock = m_nBlockCurrent * m_nBlockSamples;
 
-			for (unsigned int n = 0; n < m_nBlockSamples; n++)
+			for (unsigned int n = 0; n < m_nBlockSamples; n += m_nChannels)
 			{
 				// User Process
 				for (unsigned int c = 0; c < m_nChannels; c++)
